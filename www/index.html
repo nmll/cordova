@@ -14,7 +14,7 @@
     <script type='text/javascript' src='http://g.alicdn.com/sj/lib/zepto/zepto.min.js' charset='utf-8'></script>
   </head>
   <body>
-    <div class="page">
+    <div class="page" id="page-infinite-scroll-bottom">
       <header class="bar bar-nav theme-dark">
         <h1 class="title">我的生活</h1>
       </header>
@@ -48,44 +48,50 @@
       <header class="bar bar-nav">
         <h1 class="title">卡片</h1>
       </header>
-      <div class="content infinite-scroll infinite-scroll-bottom" data-distance="100">
-        <div class="infinite-scroll-preloader">
-            <div class="preloader"></div>
-        </div>
+      <div class="content infinite-scroll" >
+	      <div class="content1">
+	      
+	      </div>
+	      <div class="infinite-scroll-preloader">
+	          <div class="preloader"></div>
+	      </div>
       </div>
+        
     </div>
     <script type='text/javascript' src='http://g.alicdn.com/msui/sm/0.5.9/js/sm.min.js' charset='utf-8'></script>
     <script type='text/javascript' src='http://g.alicdn.com/msui/sm/0.5.9/js/sm-extend.min.js' charset='utf-8'></script>
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript">
     $(function() {
-      'use strict';
 
-      var index = 0;
-      getContent();
-      var loading = false;
-      $(document).on('infinite', '.infinite-scroll-bottom',function() {
-          if (loading) return;
-          loading = true;
-          setTimeout(function() {
-              loading = false;
-              getContent();
-              $.refreshScroller();
-          }, 1000);
-      });
-
-      function getContent(index) {
-        $.get('http://www.qiushibaike.com/hot/page/' + (index++), function (response) {
-            var arr = response.match(/<div class="fs-l mlr mt10">([\s\S]*?)<\/div>/g);
-            var html = '';
-            for (var i = 0; i < arr.length; i++) {
-              var execResult = /<div class="fs-l mlr mt10">([\s\S]*?)<\/div>/.exec(arr[i]);
-              html += '<div class="card"><div class="card-content"><div class="card-content-inner">'+execResult[1]+'</div></div></div>';
-            }
-            $('.infinite-scroll-bottom .infinite-scroll-preloader').before(html);
+        var index = 0;
+        var loading = false;
+        $(document).on("pageInit", "#page-infinite-scroll-bottom", function(e, id, page) {
+	        getContent(index);
+            $(page).on('infinite', function() {
+                // 如果正在加载，则退出
+                if (loading) return;
+                getContent(index);
+            });
         });
-      }
-    });
+        
+		$.init();
+
+        function getContent(index) {
+      		loading = true;
+          $.get('http://www.qiushibaike.com/hot/page/' + (index++), function (response) {
+              var arr = response.match(/<div class="fs-l mlr mt10">([\s\S]*?)<\/div>/g);
+              var html = '';
+              for (var i = 0; i < arr.length; i++) {
+                var execResult = /<div class="fs-l mlr mt10">([\s\S]*?)<\/div>/.exec(arr[i]);
+                html += '<div class="card"><div class="card-content"><div class="card-content-inner">'+execResult[1]+'</div></div></div>';
+              }
+              $('.content1').append(html);
+              $.refreshScroller();
+              loading = false;
+          });
+        }
+      });
     </script>
   </body>
 </html>
